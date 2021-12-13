@@ -6,86 +6,92 @@
 /*   By: tgresle <tgresle@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/13 19:00:46 by tgresle           #+#    #+#             */
-/*   Updated: 2020/01/07 18:41:52 by tgresle          ###   ########.fr       */
+/*   Updated: 2021/12/13 17:01:11 by tgresle          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	is_sep(char c, char a)
+static char		**ft_malloc_words(char const *s, char c)
 {
-	if (c == a)
-		return (1);
-	else
-		return (0);
-}
+	char	**str;
+	int		i;
+	int		size;
 
-static int	strlensep(char const *s, char c, int i)
-{
-	int j;
-
-	j = 0;
-	while (s[i] && s[i] == c)
-		i++;
-	while (s[i] && s[i] != c)
+	i = 0;
+	size = 0;
+	while (s[i])
 	{
-		i++;
-		j++;
+		if (s[i] != c)
+		{
+			size++;
+			while (s[i] != c && s[i])
+				i++;
+		}
+		else
+			i++;
 	}
-	return (j);
+	str = (char **)malloc((size + 1) * sizeof(str));
+	if (str == 0)
+		return (0);
+	str[size] = 0;
+	return (str);
 }
 
-static int	nbr_str(char const *s, char c)
+static void		ft_malloc_letters(char const *s, char c, char **str)
 {
-	int i;
-	int j;
+	int		i;
+	int		j;
+	int		size;
 
 	i = 0;
 	j = 0;
 	while (s[i])
 	{
 		if (s[i] != c)
+		{
+			size = 0;
+			while (s[i] != c && s[i])
+			{
+				size++;
+				i++;
+			}
+			str[j] = (char *)malloc((size + 1) * sizeof(*str));
+			if (str[j] == 0)
+				return ;
+			ft_bzero(str[j], size);
 			j++;
-		while (s[i] != c && s[i])
-			i++;
-		while (s[i] == c && s[i])
+		}
+		else
 			i++;
 	}
-	return (j);
 }
 
-static void	last_malloc(char **str, int *j)
+char	**ft_strsplit(char const *s, char c)
 {
-	if (!(str[(*j)] = malloc(sizeof(char) * 1)))
-		return ;
-	str[(*j)] = 0;
-}
-
-char		**ft_split(char const *s, char c)
-{
+	int		size;
 	int		i;
 	int		j;
-	int		k;
 	char	**str;
 
-	if (s == NULL)
-		return (NULL);
+	size = 0;
 	i = 0;
-	j = 0;
-	k = 0;
-	if (!(str = malloc(sizeof(char *) * (nbr_str(s, c) + 1))))
+	if (s == 0)
 		return (0);
-	while (s[i] && strlensep(s, c, i) != 0)
+	str = ft_malloc_words(s, c);
+	ft_malloc_letters(s, c, str);
+	while (s[i])
 	{
-		while (s[i] && is_sep(s[i], c))
+		if (s[i] != c)
+		{
+			j = 0;
+			while (s[i] != c && s[i])
+				str[size][j++] = s[i++];
+			str[size][j] = 0;
+			size++;
+		}
+		else
 			i++;
-		if (s[i] && !(str[j] = malloc(sizeof(char) * (strlensep(s, c, i) + 1))))
-			return (0);
-		while (s[i] && (is_sep(s[i], c) == 0))
-			str[j][k++] = s[i++];
-		str[j++][k] = '\0';
-		k = 0;
 	}
-	last_malloc(str, &j);
 	return (str);
 }
